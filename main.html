@@ -32,12 +32,64 @@
   const msg = new SpeechSynthesisUtterance();
   let voices = [];
   const voicesDropdown = document.querySelector('[name="voice"]');
-  const options = document.querySelectorAll('[type="range"], [name="text"]');
+  const rateInput = document.querySelector('[name="rate"]');
+  const pitchInput = document.querySelector('[name="pitch"]');
+  const textArea = document.querySelector('[name="text"]');
   const speakButton = document.querySelector('#speak');
   const stopButton = document.querySelector('#stop');
 
-  //Your code goes here
+  // Function to populate the voice dropdown
+  function populateVoices() {
+    voices = speechSynthesis.getVoices();
+    voicesDropdown.innerHTML = voices
+      .map(voice => `<option value="${voice.name}">${voice.name}</option>`)
+      .join('');
+  }
+
+  // Set the selected voice
+  function setVoice() {
+    const selectedVoice = voices.find(voice => voice.name === voicesDropdown.value);
+    msg.voice = selectedVoice;
+  }
+
+  // Function to speak the text
+  function speak() {
+    if (speechSynthesis.speaking) {
+      speechSynthesis.resume();
+      return;
+    }
+
+    if (textArea.value !== '') {
+      msg.text = textArea.value;
+      msg.rate = rateInput.value;
+      msg.pitch = pitchInput.value;
+      speechSynthesis.speak(msg);
+    }
+  }
+
+  // Function to stop the speech
+  function stop() {
+    speechSynthesis.cancel();
+  }
+
+  // Event listeners
+  voicesDropdown.addEventListener('change', setVoice);
+  rateInput.addEventListener('input', () => {
+    msg.rate = rateInput.value;
+  });
+  pitchInput.addEventListener('input', () => {
+    msg.pitch = pitchInput.value;
+  });
+  speakButton.addEventListener('click', speak);
+  stopButton.addEventListener('click', stop);
+
+  // Populate voices when the voices are loaded
+  speechSynthesis.onvoiceschanged = populateVoices;
+
+  // Initialize default settings
+  populateVoices();
 </script>
+
 
 </body>
 </html>
